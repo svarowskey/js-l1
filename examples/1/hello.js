@@ -10,13 +10,13 @@ function task1() {
     }
 }
 
-function task2() {
+function task3() {
     let admin;
     let name = "Василий";
     admin = name;
     alert("admin - " + admin);
 }
 
-function task3() {
+function task4() {
     alert('1000 + "108" = ' + (1000 + "108"));
 }
