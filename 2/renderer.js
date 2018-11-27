@@ -3,7 +3,7 @@ let renderer = {
     render() {
         for (let row = 0; row < config.rowCount; row++) {
             for (let col = 0; col < config.colsCount; col++) {
-                if (player.y === row && player.x === col) {
+                if (leader.y === row && leader.x === col) {
                     this.map += "0 ";
                 } else {
                     this.map += "x ";
@@ -11,6 +11,7 @@ let renderer = {
             }
             this.map += "\n";
         }
+
 
         console.log(this.map);
     },
