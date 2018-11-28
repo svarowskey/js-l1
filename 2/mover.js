@@ -17,12 +17,12 @@ let mover = {
     //Метод обработки следующей позиции игрока
     getNextPosition(direction) {
         const nextPosition = {
-            x: leader.x,
-            y: leader.y
+            x: player.x,
+            y: player.y
         };
         const prevPosition = {
-            x: leader.x,
-            y: leader.y
+            x: player.x,
+            y: player.y
         };
         switch (direction) {
             case 1:

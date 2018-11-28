@@ -3,19 +3,25 @@
 <head>
     <meta charset="UTF-8">
     <title>Title</title>
+    <style>
+        .attention {
+            color: red;
+        }
+    </style>
 </head>
 <body>
-
-    <div class="product">
-        hello
-        <div class="productName">Товар1</div>
-        <img src="https://placeimg.com/200/200/animals" alt="товар 1">
-        <button>купить</button>
-    </div>
+    <h1>
+        Lorem ipsum dolor.
+    </h1>
 
     <script>
-        let product = document.querySelector('.product');
-        console.log(product.childNodes);
+        let h1 = document.querySelector('h1');
+        h1.addEventListener('mouseover', function (event) {
+            h1.classList.add('attention');
+        });
+        h1.addEventListener('mouseout', function (event) {
+            h1.classList.remove('attention');
+        })
     </script>
 </body>
 </html>

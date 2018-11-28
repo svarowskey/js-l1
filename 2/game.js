@@ -10,7 +10,7 @@ let game = {
 
             let nextPoint = mover.getNextPosition(direction);
             renderer.clear();
-            leader.move(nextPoint);
+            player.move(nextPoint);
             renderer.render();
         }
     },
