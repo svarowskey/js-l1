@@ -3,25 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <title>Title</title>
-    <style>
-        .attention {
-            color: red;
-        }
-    </style>
+    <link rel="stylesheet" href="styles/style.css">
+
 </head>
 <body>
-    <h1>
-        Lorem ipsum dolor.
-    </h1>
-
-    <script>
-        let h1 = document.querySelector('h1');
-        h1.addEventListener('mouseover', function (event) {
-            h1.classList.add('attention');
-        });
-        h1.addEventListener('mouseout', function (event) {
-            h1.classList.remove('attention');
-        })
-    </script>
+    <button id="myButton" onclick="renderer.renderBoard()">Сгенерировать шахматную доску!</button><br>
+    <button id="buttonRemove" onclick="renderer.removeBoard()">Удалить шахматную доску</button>
+    <script src="scripts/config.js"></script>
+    <script src="scripts/renderer.js"></script>
 </body>
 </html>
