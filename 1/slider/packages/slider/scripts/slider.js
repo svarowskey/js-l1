@@ -16,7 +16,7 @@ let sliderItem = document.querySelector('.slider-items');
 let sliderTape = document.querySelector('.slider-tape');
 
 let images = {
-    currentIdx: 0,
+    currentIdx: 1,
     images: [],
     init(arr) {
         this.images = arr;
@@ -36,10 +36,6 @@ let images = {
         }
     },
 
-    /**
-     * Метод устанавливает размеры слайдера на основе значений
-     * data-атрибутов.
-     */
     setSizes() {
         if (sliderWidth !== null && sliderWidth !== "") {
             slider.style.width = String(sliderWidth) + "px";
@@ -57,46 +53,21 @@ let images = {
         }
     },
 
-    /**
-     * Метод ставит на слайдер изображение, слещующее слева,
-     * которое находится в массиве объектов images.
-     */
     setNextLeftImage() {
-        // let pic = document.querySelectorAll('.slider-items img');
-        // pic[this.currentIdx].classList.add('slider-toLeft');
-        // if (this.currentIdx === 0) {
-        //     this.currentIdx = this.images.length - 1;
-        //     setTimeout(pic[this.currentIdx].classList.remove('slider-toLeft'), 1000);
-        // } else {
-        //     //
-        //     this.currentIdx--;
-        //     setTimeout(pic[this.currentIdx].classList.remove('slider-toLeft'), 1000);
-        // }
-        let tapePosition = sliderTape.style.left.substring(0, sliderTape.style.left - 1);
-        let timer = 0;
-        sliderTape.style.left = setInterval(function () {
-            sliderTape.style.left = String(tapePosition  - timer) + "px";
-            if (timer <= 900) {
-                timer =+ 10;
-            }
-        }, 20);
+        let tapePosition = sliderTape.style.left.substring(0, sliderTape.style.left.length - 2);
+        if (this.currentIdx < 3) {
+            sliderTape.style.left = (Number(tapePosition) - 900) + "px";
+            this.currentIdx++;
+        }
 
     },
 
-    /**
-     * Метод ставит на слайдер изображение, слещующее справа,
-     * которое находится в массиве объектов images.
-     */
     setNextRightImage() {
-        // let pic = document.querySelectorAll('.slider-items img');
-        // pic[this.currentIdx].classList.add('slider-toRight');
-        // if (this.currentIdx === (this.images.length - 1)) {
-        //     this.currentIdx = 0;
-        //     setTimeout(pic[this.currentIdx].classList.remove('slider-toRight'), 1000);
-        // } else {
-        //     this.currentIdx++;
-        //     setTimeout(pic[this.currentIdx - 1].classList.remove('slider-toRight'), 1000);
-        // }
+        let tapePosition = sliderTape.style.left.substring(0, sliderTape.style.left.length - 2);
+        if (this.currentIdx > 1) {
+            sliderTape.style.left = (Number(tapePosition) + 900) + "px";
+            this.currentIdx--;
+        }
     },
 
     setSizesSliderTape() {

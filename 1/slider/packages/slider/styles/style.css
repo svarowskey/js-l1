@@ -3,7 +3,8 @@
   position: relative;
   overflow: hidden; }
   .slider-tape {
-    position: relative; }
+    position: relative;
+    transition: 1s; }
   .slider-items {
     width: 100%;
     height: 100%; }
@@ -28,20 +29,5 @@
     left: 5%; }
   .slider-rightArrow {
     right: 5%; }
-  .slider-toLeft {
-    animation: sliderLeft 1s forwards; }
-  .slider-toRight {
-    animation: sliderRight 1s forwards; }
-
-@keyframes sliderLeft {
-  from {
-    left: 0; }
-  to {
-    left: left100%; } }
-@keyframes sliderRight {
-  from {
-    right: 0; }
-  to {
-    right: right100%; } }
 
 /*# sourceMappingURL=style.css.map */
