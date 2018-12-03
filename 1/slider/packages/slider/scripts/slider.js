@@ -25,17 +25,19 @@ let images = {
         this.setSizesSliderTape();
     },
 
-    // Метод устанавливает атрибут src картинке
+    /**
+     * Метод добавляет в html теги с картинками, взятые из массива images[]
+     */
     setImages() {
-        // sliderImg.setAttribute('src', this.images[this.currentIdx].src);
-
         for (let i = 0; i < this.images.length; i++) {
             sliderItem.insertAdjacentHTML("beforeend",
                 `<img src="${this.images[i].src}" style="left:${String((this.getSizesSliderTape() / this.images.length) * i)}px">`);
-            // let pic = document.querySelector('.slider-item img');
         }
     },
 
+    /**
+     * Метод устанавливает размер слайдера и картинок в нём
+     */
     setSizes() {
         if (sliderWidth !== null && sliderWidth !== "") {
             slider.style.width = String(sliderWidth) + "px";
@@ -53,27 +55,40 @@ let images = {
         }
     },
 
+    /**
+     * Метод перелистывает картинки влево
+     */
     setNextLeftImage() {
         let tapePosition = sliderTape.style.left.substring(0, sliderTape.style.left.length - 2);
         if (this.currentIdx < 3) {
-            sliderTape.style.left = (Number(tapePosition) - 900) + "px";
+            sliderTape.style.left = (Number(tapePosition) - (this.getSizesSliderTape() / this.images.length)) + "px";
             this.currentIdx++;
         }
 
     },
 
+    /**
+     * Метод пролистывает картинки вправо
+     */
     setNextRightImage() {
         let tapePosition = sliderTape.style.left.substring(0, sliderTape.style.left.length - 2);
         if (this.currentIdx > 1) {
-            sliderTape.style.left = (Number(tapePosition) + 900) + "px";
+            sliderTape.style.left = (Number(tapePosition) + (this.getSizesSliderTape() / this.images.length)) + "px";
             this.currentIdx--;
         }
     },
 
+    /**
+     * Метод устанавливает размер ленты слайдера с картинками для прокрутки
+     */
     setSizesSliderTape() {
         sliderTape.style.width = String(this.getSizesSliderTape()) + "px";
     },
 
+    /**
+     * Метод, с помощью которого мы получаем размер ленты слайдера с картинками
+     * @returns {number}
+     */
     getSizesSliderTape() {
         if (sliderWidth === "") {
              return window.innerWidth * this.images.length;
@@ -83,10 +98,16 @@ let images = {
     }
 };
 
+/**
+ * Обработчик нажатия на левую стрелку слайдера
+ */
 leftArrow.addEventListener('click', function () {
-    images.setNextLeftImage();
+    images.setNextRightImage();
 });
 
+/**
+ * Обработчик нажатия на правую стрелку слайдера
+ */
 rightArrow.addEventListener('click', function () {
-    images.setNextRightImage();
+    images.setNextLeftImage();
 });

@@ -24,7 +24,11 @@
     color: rgba(255, 255, 255, 0.5);
     cursor: pointer;
     font-size: 50px;
-    filter: drop-shadow(0 0 2px black); }
+    filter: drop-shadow(0 0 2px black);
+    transition: .5s; }
+    .slider-leftArrow:hover, .slider-rightArrow:hover {
+      transform: scale(1.2);
+      color: rgba(255, 255, 255, 0.8); }
   .slider-leftArrow {
     left: 5%; }
   .slider-rightArrow {
