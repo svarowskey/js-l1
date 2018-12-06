@@ -1,12 +1,28 @@
 "use strict";
 
 let snake = {
+    body: null,
+    direction: null,
 
+    init(startPoint, direction) {
+        // this.body = [
+        //     {x: 5, y: 5},  это голова
+        //     {x: 6, y: 5},
+        //     {x: 7, y: 5}
+        // ];
+        this.body = [startPoint];
+        this.direction = direction;
+    }
 };
 
 let renderer = {
     cells: {},
 
+    /**
+     * Метод рисует карту
+     * @param rowsCount
+     * @param colsCount
+     */
     renderMap(rowsCount, colsCount) {
         let table = document.getElementById('game');
         table.innerHTML = '';
@@ -23,11 +39,34 @@ let renderer = {
         }
     },
 
+    render(snakePointArray, foodPoint) {
+        for (let key of Object.getOwnPropertyNames(this.cells)) {
+            this.cells[key].className = 'cell';
+        }
 
+        snakePointArray.forEach((point, idx) => {
+            this.cells[`x${point.x}_y${point.y}`].classList.add(idx === 0 ? 'snakeHead' : 'snakeBody');
+        });
+
+        this.cells[`x${foodPoint.x}_y${foodPoint.y}`].classList.add('food');
+    }
 };
 
 let food = {
+    x: null,
+    y: null,
 
+    setFoodCoordinates(point) {
+        this.x = point.x;
+        this.y = point.y;
+    },
+
+    getFoodCoordinates() {
+        return {
+            x: this.x,
+            y: this.y,
+        }
+    }
 };
 
 let status = {
@@ -100,7 +139,11 @@ let game = {
     reset() {
         this.stop();
 
-        // this.snake.init()
+        this.snake.init(this.getStartSnakePoint(), 'up');
+
+        this.food.setFoodCoordinates(this.getRandomCoordinates());
+
+        this.renderer.render(this.snake.body, this.food.getFoodCoordinates());
     },
 
     play() {
@@ -113,7 +156,42 @@ let game = {
 
     finish() {
 
-    }
+    },
+
+    /**
+     * Метод находит середину поля
+     * @returns {{x: number, y: number}} Возвращает координаты середины поля
+     */
+    getStartSnakePoint() {
+        return {
+            x: Math.floor(this.settings.colsCount / 2),
+            y: Math.floor(this.settings.rowCount / 2)
+        }
+    },
+
+    getRandomCoordinates() {
+        let exclude = [this.food.getFoodCoordinates(), ...this.snake.body];
+        console.log(exclude);
+
+        while (true) {
+            // Случайная точка в пределах игрового поля
+            let rndPoint = {
+                x: Math.floor(Math.random() * this.settings.colsCount),
+                y: Math.floor(Math.random() * this.settings.rowCount),
+            };
+
+            // проверяем не содержится ли в массиве exclude нашей случайной точки
+            let excludeContainsRndPoint =   exclude.some(function (exPoint) {
+                return rndPoint.x === exPoint.x && rndPoint.y === exPoint.y;
+            });
+
+
+            if (!excludeContainsRndPoint) {
+                console.log(rndPoint);
+                return rndPoint;
+            }
+        }
+    },
 };
 
 
