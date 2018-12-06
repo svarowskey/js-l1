@@ -18,6 +18,7 @@ let renderer = {
                 let td = document.createElement('td');
                 td.classList.add('cell');
                 tr.appendChild(td);
+                this.cells[`x${col}_y${row}`] = td;
             }
         }
     },
@@ -85,7 +86,34 @@ let game = {
         }
 
         this.renderer.renderMap(this.settings.rowCount, this.settings.colsCount);
+
+        this.setEventHandlers();
+
+        this.reset();
     },
+
+    setEventHandlers() {
+        //TODO сделать метод обработчиков событий
+
+    },
+
+    reset() {
+        this.stop();
+
+        // this.snake.init()
+    },
+
+    play() {
+
+    },
+
+    stop() {
+
+    },
+
+    finish() {
+
+    }
 };
 
 
