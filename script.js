@@ -39,6 +39,11 @@ let renderer = {
         }
     },
 
+    /**
+     * Метод рисует змейку и еду на карте
+     * @param snakePointArray
+     * @param foodPoint
+     */
     render(snakePointArray, foodPoint) {
         for (let key of Object.getOwnPropertyNames(this.cells)) {
             this.cells[key].className = 'cell';
@@ -56,11 +61,19 @@ let food = {
     x: null,
     y: null,
 
+    /**
+     * Метод устанавливает координаты еды
+     * @param point
+     */
     setFoodCoordinates(point) {
         this.x = point.x;
         this.y = point.y;
     },
 
+    /**
+     * Метод возвращает координаты еды
+     * @returns {{x: *, y: *}}
+     */
     getFoodCoordinates() {
         return {
             x: this.x,
@@ -70,7 +83,27 @@ let food = {
 };
 
 let status = {
+    condition: null,
 
+    setPlaying() {
+        this.condition = 'playing';
+    },
+
+    setStopped() {
+        this.condition = 'stopped';
+    },
+
+    setFinished() {
+        this.condition = 'finished';
+    },
+
+    isPlaying() {
+        return this.condition === 'playing';
+    },
+
+    isStopped() {
+        return this.condition === 'stopped';
+    },
 };
 
 let settings = {
@@ -115,8 +148,7 @@ let game = {
     renderer,
     food,
     snake,
-
-
+    tickInterval: null,
 
     init(userSettings = {}) {
         Object.assign(this.settings, userSettings);
@@ -132,8 +164,25 @@ let game = {
     },
 
     setEventHandlers() {
-        //TODO сделать метод обработчиков событий
+       document.getElementById('playButton').addEventListener('click', () => this.playClickHandler());
+       document.getElementById('newGameButton').addEventListener('click', () => this.newGameClickHandler());
+       document.addEventListener('keydown', () => this.keyDownHandler(event));
+    },
 
+    playClickHandler() {
+        if (this.status.isPlaying()) {
+            this.stop();
+        } else if (this.status.isStopped()) {
+            this.play();
+        }
+    },
+
+    newGameClickHandler() {
+        this.reset();
+    },
+
+    keyDownHandler(event) {
+        console.log(event);
     },
 
     reset() {
@@ -147,15 +196,44 @@ let game = {
     },
 
     play() {
-
+        // Ставим статус игры в "играем"
+        this.status.setPlaying();
+        // Запускаем шаги змейки
+        this.tickInterval = setInterval(() => this.tickHandler(), 1000 / this.settings.speed);
+        // Меняем кнопку игры на стоп
+        this.changePlayButton('Стоп');
     },
 
     stop() {
-
+        // Ставим статус игры в "остановлена"
+        this.status.setStopped();
+        // Останавливаем шаги змейки
+        clearInterval(this.tickInterval);
+        // Меняем кнопку игры на старт
+        this.changePlayButton('Старт');
     },
 
     finish() {
+        // Ставим статус в "финиш"
+        this.status.setFinished();
+        // Останавливаем шаги змейки
+        clearInterval(this.tickInterval);
+        // Меняем кнопку игры, сделаем серой и напишем игра закончена
+        this.changePlayButton('Игра закончена', true);
+    },
 
+    changePlayButton(textContent, isDisabled = false) {
+        let playButton = document.getElementById('playButton');
+        playButton.textContent = textContent;
+        isDisabled ? playButton.classList.add('disabled') : playButton.classList.remove('disabled');
+    },
+
+    tickHandler() {
+
+    },
+
+    canSnakeMakeStep() {
+        let nextPoint
     },
 
     /**
@@ -169,6 +247,10 @@ let game = {
         }
     },
 
+    /**
+     * Метод возвращает случайные координаты
+     * @returns {{x: number, y: number}}
+     */
     getRandomCoordinates() {
         let exclude = [this.food.getFoodCoordinates(), ...this.snake.body];
         console.log(exclude);
