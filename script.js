@@ -3,6 +3,7 @@
 let snake = {
     body: null,
     direction: null,
+    lastStepDirection: null,
 
     init(startPoint, direction) {
         // this.body = [
@@ -11,8 +12,73 @@ let snake = {
         //     {x: 7, y: 5}
         // ];
         this.body = [startPoint];
+        this.lastStepDirection = direction;
         this.direction = direction;
-    }
+    },
+
+    getNextStepHeadPoint() {
+        let firstPoint = this.body[0];
+
+        switch (this.direction) {
+            case 'up':
+                return {x: firstPoint.x, y: firstPoint.y - 1};
+            case 'down':
+                return {x: firstPoint.x, y: firstPoint.y + 1};
+            case 'right':
+                return {x: firstPoint.x + 1, y: firstPoint.y};
+            case 'left':
+                return {x: firstPoint.x - 1, y: firstPoint.y};
+        }
+    },
+
+    /**
+     * Проверка является ли точка телом змейки
+     * @param point
+     * @returns {boolean}
+     */
+    isBodyPoint(point) {
+        return this.body.some(snakePoint => snakePoint.x === point.x && snakePoint.y === point.y);
+    },
+
+    makeStep() {
+        // Откуда стартуем
+        //[{x: 5, y: 5}, {x: 6, y: 5}, {x: 7, y: 5}]
+
+        //Что у нас
+        //[{x: 4, y: 5}, {x: 5, y: 5}, {x: 6, y: 5}, {x: 7, y: 5}]
+
+        // Что должны получить
+        //[{x: 4, y: 5}, {x: 5, y: 5}, {x: 6, y: 5}]
+
+        this.lastStepDirection = this.direction;
+        this.body.unshift(this.getNextStepHeadPoint());
+        this.body.pop();
+    },
+
+    /**
+     * Метод устанавливает направление для змейки по принятым данным
+     * @param direction
+     */
+    setDirection(direction) {
+        this.direction = direction;
+    },
+
+    incrementBody() {
+        // Сейчас, до того как сделаем шаг
+        //[{x: 5, y: 5}, {x: 6, y: 5}, {x: 7, y: 5}]
+
+        let lastBodyIdx = this.body.length - 1;
+        let lastBodyPoint = this.body[lastBodyIdx];
+        let lastBodyPointClone = Object.assign({}, lastBodyPoint);
+        this.body.push(lastBodyPointClone);
+
+        // Как у нас до хода - добавляем еще такую же ячейку, чтобы при шаге последняя
+        // точка не быа удалена
+        //[{x: 5, y: 5}, {x: 6, y: 5}, {x: 7, y: 5}, {x: 7, y: 5}]
+
+        // Когда делает шаг
+        //[{x: 4, y: 5}, {x: 5, y: 5}, {x: 6, y: 5}, {x: 7, y: 5}]
+    },
 };
 
 let renderer = {
@@ -79,6 +145,10 @@ let food = {
             x: this.x,
             y: this.y,
         }
+    },
+
+    isFoodPoint(point) {
+        return this.x === point.x && this.y === point.y;
     }
 };
 
@@ -163,6 +233,9 @@ let game = {
         this.reset();
     },
 
+    /**
+     * Метод устанавливает слушателей событий
+     */
     setEventHandlers() {
        document.getElementById('playButton').addEventListener('click', () => this.playClickHandler());
        document.getElementById('newGameButton').addEventListener('click', () => this.newGameClickHandler());
@@ -181,8 +254,56 @@ let game = {
         this.reset();
     },
 
+    /**
+     * Обработка событий при нажатии клавиш
+     * @param event
+     */
     keyDownHandler(event) {
-        console.log(event);
+        if (!this.status.isPlaying()) {
+            return;
+        }
+
+        let direction = this.getDirectionByCode(event.code);
+
+        if (this.canSetDirection(direction)) {
+            this.snake.setDirection(direction);
+        }
+    },
+
+    /**
+     * Проверка установки направления змейки
+     * @param direction
+     * @returns {boolean}
+     */
+    canSetDirection(direction) {
+        return direction === 'up' && this.snake.lastStepDirection !== 'down' ||
+               direction === 'right' && this.snake.lastStepDirection !== 'left' ||
+               direction === 'down' && this.snake.lastStepDirection !== 'up' ||
+               direction === 'left' && this.snake.lastStepDirection !== 'right';
+    },
+
+    /**
+     * Получаем направление змейки по нажатию клавиши
+     * @param code
+     * @returns {string}
+     */
+    getDirectionByCode(code) {
+        switch (code) {
+            case 'keyW':
+            case 'ArrowUp':
+                return 'up';
+            case 'keyD':
+            case 'ArrowRight':
+                return 'right';
+            case 'keyS':
+            case 'ArrowDown':
+                return 'down';
+            case 'keyA':
+            case 'ArrowLeft':
+                return 'left';
+            default:
+                return '';
+        }
     },
 
     reset() {
@@ -192,6 +313,13 @@ let game = {
 
         this.food.setFoodCoordinates(this.getRandomCoordinates());
 
+        this.render();
+    },
+
+    /**
+     * Метод рисует змейку и еду на карте
+     */
+    render() {
         this.renderer.render(this.snake.body, this.food.getFoodCoordinates());
     },
 
@@ -222,6 +350,11 @@ let game = {
         this.changePlayButton('Игра закончена', true);
     },
 
+    /**
+     * Метод меняет текст кнопки Старт на Стоп
+     * @param textContent
+     * @param isDisabled
+     */
     changePlayButton(textContent, isDisabled = false) {
         let playButton = document.getElementById('playButton');
         playButton.textContent = textContent;
@@ -229,11 +362,42 @@ let game = {
     },
 
     tickHandler() {
+        if (!this.canSnakeMakeStep()) {
+            this.finish();
+            return;
+        }
 
+        if (this.food.isFoodPoint(this.snake.getNextStepHeadPoint())) {
+            this.snake.incrementBody();
+            this.food.setFoodCoordinates(this.getRandomCoordinates());
+            if (this.isGameWon()) {
+                this.finish();
+            }
+        }
+
+        this.snake.makeStep();
+        this.render();
     },
 
+    /**
+     * Проверяем, если тело змейки больше указанного в настройках значения, то возвращаем true
+     * @returns {boolean}
+     */
+    isGameWon() {
+        return this.snake.body.length > this.settings.winLength;
+    },
+
+    /**
+     * Метод определяет может ли змейка сделать следующий шаг
+     * @returns {boolean}
+     */
     canSnakeMakeStep() {
-        let nextPoint
+        let nextHeadPoint = this.snake.getNextStepHeadPoint();
+        return !this.snake.isBodyPoint(nextHeadPoint) &&
+                nextHeadPoint.x < this.settings.colsCount &&
+                nextHeadPoint.y < this.settings.rowCount &&
+                nextHeadPoint.x >= 0 &&
+                nextHeadPoint.y >= 0;
     },
 
     /**
@@ -253,7 +417,6 @@ let game = {
      */
     getRandomCoordinates() {
         let exclude = [this.food.getFoodCoordinates(), ...this.snake.body];
-        console.log(exclude);
 
         while (true) {
             // Случайная точка в пределах игрового поля
@@ -269,7 +432,6 @@ let game = {
 
 
             if (!excludeContainsRndPoint) {
-                console.log(rndPoint);
                 return rndPoint;
             }
         }
@@ -277,4 +439,4 @@ let game = {
 };
 
 
-window.onload = () => game.init({speed: 2});
+window.onload = () => game.init({speed: 8, winLength: 5});
