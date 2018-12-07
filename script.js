@@ -6,11 +6,6 @@ let snake = {
     lastStepDirection: null,
 
     init(startPoint, direction) {
-        // this.body = [
-        //     {x: 5, y: 5},  это голова
-        //     {x: 6, y: 5},
-        //     {x: 7, y: 5}
-        // ];
         this.body = [startPoint];
         this.lastStepDirection = direction;
         this.direction = direction;
@@ -21,13 +16,13 @@ let snake = {
 
         switch (this.direction) {
             case 'up':
-                return {x: firstPoint.x, y: firstPoint.y - 1};
+                return {x: firstPoint.x, y: firstPoint.y !== 0 ? firstPoint.y - 1 : settings.rowCount - 1};
             case 'down':
-                return {x: firstPoint.x, y: firstPoint.y + 1};
+                return {x: firstPoint.x, y: firstPoint.y !== settings.rowCount - 1 ? firstPoint.y + 1 : 0};
             case 'right':
-                return {x: firstPoint.x + 1, y: firstPoint.y};
+                return {x: firstPoint.x !== settings.colsCount -1 ? firstPoint.x + 1 : 0, y: firstPoint.y};
             case 'left':
-                return {x: firstPoint.x - 1, y: firstPoint.y};
+                return {x: firstPoint.x !== 0 ? firstPoint.x - 1 : settings.colsCount - 1, y: firstPoint.y};
         }
     },
 
@@ -41,15 +36,6 @@ let snake = {
     },
 
     makeStep() {
-        // Откуда стартуем
-        //[{x: 5, y: 5}, {x: 6, y: 5}, {x: 7, y: 5}]
-
-        //Что у нас
-        //[{x: 4, y: 5}, {x: 5, y: 5}, {x: 6, y: 5}, {x: 7, y: 5}]
-
-        // Что должны получить
-        //[{x: 4, y: 5}, {x: 5, y: 5}, {x: 6, y: 5}]
-
         this.lastStepDirection = this.direction;
         this.body.unshift(this.getNextStepHeadPoint());
         this.body.pop();
@@ -64,21 +50,35 @@ let snake = {
     },
 
     incrementBody() {
-        // Сейчас, до того как сделаем шаг
-        //[{x: 5, y: 5}, {x: 6, y: 5}, {x: 7, y: 5}]
-
         let lastBodyIdx = this.body.length - 1;
         let lastBodyPoint = this.body[lastBodyIdx];
         let lastBodyPointClone = Object.assign({}, lastBodyPoint);
         this.body.push(lastBodyPointClone);
-
-        // Как у нас до хода - добавляем еще такую же ячейку, чтобы при шаге последняя
-        // точка не быа удалена
-        //[{x: 5, y: 5}, {x: 6, y: 5}, {x: 7, y: 5}, {x: 7, y: 5}]
-
-        // Когда делает шаг
-        //[{x: 4, y: 5}, {x: 5, y: 5}, {x: 6, y: 5}, {x: 7, y: 5}]
     },
+};
+
+let score = {
+    count: 0,
+    countEl: null,
+
+    init() {
+       this.countEl = document.getElementById('score');
+       this.drop();
+    },
+
+    increment() {
+        this.count++;
+        this.render();
+    },
+
+    drop() {
+        this.count = 0;
+        this.render();
+    },
+
+    render() {
+        this.countEl.textContent = this.count;
+    }
 };
 
 let renderer = {
@@ -121,14 +121,6 @@ let renderer = {
 
         this.cells[`x${foodPoint.x}_y${foodPoint.y}`].classList.add('food');
     },
-
-    /**
-     * Метод выводит счет на странице
-     */
-    renderScore() {
-        let scoreText = document.getElementById('score');
-        scoreText.textContent = String(snake.body.length - 1);
-    }
 };
 
 let food = {
@@ -155,6 +147,11 @@ let food = {
         }
     },
 
+    /**
+     * Проверка является ли проверяемая координата точкой с едой
+     * @param point
+     * @returns {boolean}
+     */
     isFoodPoint(point) {
         return this.x === point.x && this.y === point.y;
     }
@@ -250,6 +247,9 @@ let game = {
         document.addEventListener('keydown', () => this.keyDownHandler(event));
     },
 
+    /**
+     * Обработка события при нажатии на кнопку "Старт"
+     */
     playClickHandler() {
         if (this.status.isPlaying()) {
             this.stop();
@@ -258,6 +258,9 @@ let game = {
         }
     },
 
+    /**
+     * Обработка события кнопки "Новая игра"
+     */
     newGameClickHandler() {
         this.reset();
     },
@@ -316,12 +319,11 @@ let game = {
 
     reset() {
         this.stop();
-
         this.snake.init(this.getStartSnakePoint(), 'up');
-
         this.food.setFoodCoordinates(this.getRandomCoordinates());
-
         this.render();
+        score.init();
+        score.drop();
     },
 
     /**
@@ -369,6 +371,9 @@ let game = {
         isDisabled ? playButton.classList.add('disabled') : playButton.classList.remove('disabled');
     },
 
+    /**
+     * Метод отрабатывает каждый шаг змейки
+     */
     tickHandler() {
         if (!this.canSnakeMakeStep()) {
             this.finish();
@@ -378,7 +383,7 @@ let game = {
         if (this.food.isFoodPoint(this.snake.getNextStepHeadPoint())) {
             this.snake.incrementBody();
             this.food.setFoodCoordinates(this.getRandomCoordinates());
-            this.renderer.renderScore();
+            score.increment();
             if (this.isGameWon()) {
                 this.finish();
             }
@@ -402,11 +407,7 @@ let game = {
      */
     canSnakeMakeStep() {
         let nextHeadPoint = this.snake.getNextStepHeadPoint();
-        return !this.snake.isBodyPoint(nextHeadPoint) &&
-            nextHeadPoint.x < this.settings.colsCount &&
-            nextHeadPoint.y < this.settings.rowCount &&
-            nextHeadPoint.x >= 0 &&
-            nextHeadPoint.y >= 0;
+        return !this.snake.isBodyPoint(nextHeadPoint);
     },
 
     /**
