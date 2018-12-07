@@ -120,6 +120,14 @@ let renderer = {
         });
 
         this.cells[`x${foodPoint.x}_y${foodPoint.y}`].classList.add('food');
+    },
+
+    /**
+     * Метод выводит счет на странице
+     */
+    renderScore() {
+        let scoreText = document.getElementById('score');
+        scoreText.textContent = String(snake.body.length - 1);
     }
 };
 
@@ -209,7 +217,7 @@ let settings = {
 
         return true;
 
-        },
+    },
 };
 
 let game = {
@@ -237,9 +245,9 @@ let game = {
      * Метод устанавливает слушателей событий
      */
     setEventHandlers() {
-       document.getElementById('playButton').addEventListener('click', () => this.playClickHandler());
-       document.getElementById('newGameButton').addEventListener('click', () => this.newGameClickHandler());
-       document.addEventListener('keydown', () => this.keyDownHandler(event));
+        document.getElementById('playButton').addEventListener('click', () => this.playClickHandler());
+        document.getElementById('newGameButton').addEventListener('click', () => this.newGameClickHandler());
+        document.addEventListener('keydown', () => this.keyDownHandler(event));
     },
 
     playClickHandler() {
@@ -277,9 +285,9 @@ let game = {
      */
     canSetDirection(direction) {
         return direction === 'up' && this.snake.lastStepDirection !== 'down' ||
-               direction === 'right' && this.snake.lastStepDirection !== 'left' ||
-               direction === 'down' && this.snake.lastStepDirection !== 'up' ||
-               direction === 'left' && this.snake.lastStepDirection !== 'right';
+            direction === 'right' && this.snake.lastStepDirection !== 'left' ||
+            direction === 'down' && this.snake.lastStepDirection !== 'up' ||
+            direction === 'left' && this.snake.lastStepDirection !== 'right';
     },
 
     /**
@@ -370,6 +378,7 @@ let game = {
         if (this.food.isFoodPoint(this.snake.getNextStepHeadPoint())) {
             this.snake.incrementBody();
             this.food.setFoodCoordinates(this.getRandomCoordinates());
+            this.renderer.renderScore();
             if (this.isGameWon()) {
                 this.finish();
             }
@@ -394,10 +403,10 @@ let game = {
     canSnakeMakeStep() {
         let nextHeadPoint = this.snake.getNextStepHeadPoint();
         return !this.snake.isBodyPoint(nextHeadPoint) &&
-                nextHeadPoint.x < this.settings.colsCount &&
-                nextHeadPoint.y < this.settings.rowCount &&
-                nextHeadPoint.x >= 0 &&
-                nextHeadPoint.y >= 0;
+            nextHeadPoint.x < this.settings.colsCount &&
+            nextHeadPoint.y < this.settings.rowCount &&
+            nextHeadPoint.x >= 0 &&
+            nextHeadPoint.y >= 0;
     },
 
     /**
@@ -426,7 +435,7 @@ let game = {
             };
 
             // проверяем не содержится ли в массиве exclude нашей случайной точки
-            let excludeContainsRndPoint =   exclude.some(function (exPoint) {
+            let excludeContainsRndPoint = exclude.some(function (exPoint) {
                 return rndPoint.x === exPoint.x && rndPoint.y === exPoint.y;
             });
 
@@ -439,4 +448,4 @@ let game = {
 };
 
 
-window.onload = () => game.init({speed: 8, winLength: 5});
+window.onload = () => game.init({speed: 8});

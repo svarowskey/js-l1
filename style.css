@@ -28,6 +28,17 @@
     justify-content: center;
 }
 
+.score {
+    display: flex;
+    justify-content: center;
+    color: white;
+    margin-top: 20px;
+}
+
+.score p {
+    margin-left: 20px;
+}
+
 td.cell {
     width: 20px;
     height: 20px;
